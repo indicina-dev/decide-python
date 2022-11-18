@@ -26,7 +26,7 @@
   - [Contribute to Project](#contribute-to-project)
   - [Issues](#issues)
 
-
+---
 # About
 Decide helps users make risk-free decisions based on an analysis of their banking transactions using extracted financial data.
 The Decide SDK helps developers plug into the functionalities of Decide from their python projects.
