@@ -28,18 +28,15 @@ jobs:
       run: |
         pylint  --rcfile=.pylintrc decide/*.py
     - name: Test with pytest
-      with:
-        uses: actions/setup-python@v3
-        python-version: "3.9"
       run: |
         pytest -vv decide/test --disable-pytest-warnings
     - name: Build package
-      run: python -m build
-    # - name: Publish package
-    #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-    #   with:
-    #     user: __token__
-    #     password: ${{ secrets.PYPI_API_TOKEN }}
+      run: python setup.py bdist_wheel
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@v1.5.1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
 
   cd:
     needs: ci
@@ -70,8 +67,8 @@ jobs:
           git config user.email github-actions@github.com
           pip install python-semantic-release
           semantic-release publish
-    # - name: Publish to PyPI
-    #   uses: pypa/gh-action-pypi-publish@release/v3
-    #   with:
-    #     user: __token__
-    #     password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@v1.5.1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
