@@ -150,7 +150,6 @@ def test_csv_statement(csv_statement_mock):
         print(f"Average recurring Expense is: {analysis['spendAnalysis']['averageRecurringExpense']}")
 
 
-
 def test_transaction_tags():
 
     with open("decide/test/data/test1.json", "r") as f:

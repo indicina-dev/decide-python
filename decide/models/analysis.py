@@ -15,11 +15,6 @@ class Analysis(BaseModel):  # pylint: disable=too-few-public-methods
     spendAnalysis: "SpendAnalysis" = None
     transactionPatternAnalysis: "TransactionPatternAnalysis" = None
     accountDetails = None
-    addOns: "AddOn" = None
-
-    # Add-ons
-    rules: "" = None
-    affordability: "" = None
 
     def __init__(self, data: dict,
                  status,
@@ -189,6 +184,15 @@ class TransactionPatternAnalysis(BaseModel):
         return value
 
 
+class AccountDetails(BaseModel):
+
+    accountName = None
+    accountNumber = None
+
+    def build_dict_values(self, key, value):
+        return value
+
+
 class ExpenseChannels(BaseModel, ABC):
 
     atmSpend = None
@@ -220,17 +224,6 @@ class ExpenseCategories(BaseModel, ABC):
             setattr(self, __dict["key"], __dict["value"])
 
 
-class AddOn(BaseModel, ABC):
-    breakdown: list["Rule"] = None
-    status = None
-
-    def __init__(self, data):
-        super().__init__({})
-        self.status = data["status"]
-        for __dict in data:
-            setattr(self, __dict)
-
-
 class Rule:
     condition = None
     name = None
@@ -242,5 +235,6 @@ _analysis_call_dict = {
     "cashFlowAnalysis": CashFlowAnalysis,
     "incomeAnalysis": IncomeAnalysis,
     "spendAnalysis": SpendAnalysis,
-    "transactionPatternAnalysis": TransactionPatternAnalysis
+    "transactionPatternAnalysis": TransactionPatternAnalysis,
+    "accountDetails": AccountDetails
 }
