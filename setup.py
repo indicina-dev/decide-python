@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 
 setup(
-    name="decide",
+    name="indicina-decide",
     version=__version__,
     description="",
     packages=find_packages(),
