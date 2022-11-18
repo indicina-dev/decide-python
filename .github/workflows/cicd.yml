@@ -33,13 +33,6 @@ jobs:
     - name: Test with pytest
       run: |
         pytest -vv decide/test --disable-pytest-warnings
-    - name: Build package
-      run: python setup.py bdist_wheel
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@v1.5.1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
 
   cd:
     needs: ci
@@ -50,10 +43,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v3
       with:
-        python-version: "3.8"
+        python-version: "3.9"
     - name: Install dependencies
       run: |
         python --version
