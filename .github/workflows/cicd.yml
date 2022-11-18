@@ -22,6 +22,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install wheel
         pip install -r requirements.txt
+    - name: Commit Lint
+      run: |
+        pip install gitlint
+        gitlint --contrib CT1 --ignore B6
     - name: Lint with pylint
       run: |
         pip install pylint
