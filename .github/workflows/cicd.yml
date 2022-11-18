@@ -26,6 +26,7 @@ jobs:
         pip install -r requirements.txt
     - name: Lint with pylint
       run: |
+        pip install pylint
         pylint  --rcfile=.pylintrc decide/*.py
     - name: Test with pytest
       run: |
