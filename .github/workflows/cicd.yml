@@ -60,6 +60,8 @@ jobs:
           git config user.email github-actions@github.com
           pip install python-semantic-release
           semantic-release publish
+    - name: Build distribution
+      run: python setup.py bdist_wheel
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@v1.5.1
       with:
