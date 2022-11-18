@@ -1,0 +1,77 @@
+name: ci-cd
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
+      run: |
+        python --version
+        python -m pip install --upgrade pip
+        pip install virtualenv
+        virtualenv env
+        source env/bin/activate
+        pip install -r requirements.txt
+    - name: Lint with pylint
+      run: |
+        pylint  --rcfile=.pylintrc decide/*.py
+    - name: Test with pytest
+      with:
+        uses: actions/setup-python@v3
+        python-version: "3.9"
+      run: |
+        pytest -vv decide/test --disable-pytest-warnings
+    - name: Build package
+      run: python -m build
+    # - name: Publish package
+    #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
+
+  cd:
+    needs: ci
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
+      run: |
+        python --version
+        python -m pip install --upgrade pip
+        pip install virtualenv
+        virtualenv env
+        source env/bin/activate
+        pip install -r requirements.txt
+    - name: Use Python Semantic Release to prepare Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          pip install python-semantic-release
+          semantic-release publish
+    # - name: Publish to PyPI
+    #   uses: pypa/gh-action-pypi-publish@release/v3
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}

@@ -1,0 +1,26 @@
+{
+    "paging": {
+        "total": 190,
+        "page": 2,
+        "previous": "https://api.withmono.com/accounts/:id/transactions?page=2",
+        "next": "https://api.withmono.com/accounts/:id/transactions?page=3"
+    },
+    "data": [
+        {
+            "_id": "5f171a540295e231abca1154",
+            "amount": 10000,
+            "date": "2020-07-21T00:00:00.000Z",
+            "narration": "TRANSFER from HASSAN ABDULHAMID TOMIWA to OGUNGBEFUN OLADUNNI KHADIJAH",
+            "type": "debit",
+            "category": "E-CHANNELS"
+        },
+        {
+            "_id": "5d171a540295e231abca6654",
+            "amount": 20000,
+            "date": "2020-07-21T00:00:00.000Z",
+            "narration": "TRANSFER from HASSAN ABDULHAMID TOMIWA to UMAR ABDULLAHI",
+            "type": "debit",
+            "category": "E-CHANNELS"
+        }
+    ]
+}

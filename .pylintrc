@@ -1,0 +1,7 @@
+[MESSAGES CONTROL]
+disable=
+    too-few-public-methods,
+    missing-module-docstring,
+
+[DESIGN]
+exclude-too-few-public-methods=

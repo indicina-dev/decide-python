@@ -1,0 +1,6 @@
+repos:
+-   repo: https://github.com/jorisroovers/gitlint
+    rev: "v0.17.0"
+    hooks:
+    -   id: gitlint
+        args: [--contrib=CT1, --ignore=B6, --msg-filename]

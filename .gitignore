@@ -1,0 +1,17 @@
+.DS_Store
+.vscode/
+*__pycache__/
+.idea
+env
+.idea
+venv
+*.ipynb
+*.ipynb_checkpoints
+.env
+flask_profiler.sql
+.python-version
+help.txt
+guide.txt
+virtual/
+guide.txt
+*.pyc
