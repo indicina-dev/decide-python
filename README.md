@@ -1,5 +1,10 @@
 ## decide-python-package
+![img.png](assets/img.png)
 
+![PyPI](https://img.shields.io/pypi/v/indicina-decide)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/indicina-decide)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/indicina-dev/decide-python/ci-cd/v0.0.0)
+---
 **Table of contents**
 - [About](#about)
 - [Using the App](#using-the-app)
