@@ -25,7 +25,7 @@ jobs:
     - name: Commit Lint
       run: |
         pip install gitlint
-        gitlint --contrib CT1 --ignore B6
+        gitlint --contrib CT1 --ignore B6 -c general.ignore-merge-commits=true
     - name: Lint with pylint
       run: |
         pip install pylint
