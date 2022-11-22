@@ -50,7 +50,6 @@ jobs:
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         repository_username: __token__
-        repository_password: ${{ secrets.PYPI_API_TOKEN }}
     - name: Build distribution
       run: python setup.py bdist_wheel
     - name: Publish package
