@@ -52,10 +52,4 @@ jobs:
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         repository_username: __token__
-    - name: Build distribution
-      run: python setup.py bdist_wheel
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@v1.5.1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        repository_password: ${{ secrets.PYPI_API_TOKEN }}
