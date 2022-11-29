@@ -86,7 +86,7 @@ statement = json.loads("""{
     ]
 }""")
 
-statement = JSONStatement(statement_format=StatementFormat.MBS, statement=json_statement, customer=customer)
+statement = JSONStatement(statement_format=StatementFormat.MONO, statement=json_statement, customer=customer)
 analyis: Analysis = statement.analyze()
 
 print(analysis)
@@ -248,7 +248,7 @@ analyis: Analysis = statement.analyze()
 
 # Contribution
 ## Setup Project
-The link for this projects's repository can be found [here](decide-python.git)
+The link for this projects's repository can be found [here](https://github.com/indicina-dev/decide-python)
 ### Cloning the project
 
 ##### For HTTPS
