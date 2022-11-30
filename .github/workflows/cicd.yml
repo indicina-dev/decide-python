@@ -2,8 +2,6 @@ name: ci-cd
 
 on: [push, pull_request]
 
-permissions:
-  contents: read
 
 jobs:
   ci:
@@ -22,12 +20,11 @@ jobs:
       run: |
         python --version
         python -m pip install --upgrade pip
-        python -m pip install wheel
         pip install -r requirements.txt
     - name: Commit Lint
       run: |
-        pip install gitlint
-        gitlint --contrib CT1 --ignore B6 -c general.ignore-merge-commits=true
+        pip install gitlint==0.18.0
+        gitlint --contrib CT1 --ignore B6 -c ignore-by-author-name.regex=github-actions -c general.ignore-merge-commits=true
     - name: Lint with pylint
       run: |
         pip install pylint
