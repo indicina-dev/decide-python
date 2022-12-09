@@ -30,11 +30,13 @@ class DecideTaggedStatement(BaseModel):  # pylint: disable=too-few-public-method
             path=f"analysis/{request_id}/tagged_transactions",
             content_type="application/json",
         )
+        self.data = None
 
     def get(self):
         """This method gets tagged statements"""
         json_response = self.client.get()
         self.status = json_response["status"]
+        self.data = json_response["data"]
         super().__init__(data=json_response["data"])
 
         return self.status
