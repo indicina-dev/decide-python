@@ -36,8 +36,8 @@ class DecideTaggedStatement(BaseModel):  # pylint: disable=too-few-public-method
         """This method gets tagged statements"""
         json_response = self.client.get()
         self.status = json_response["status"]
-        self.data = json_response["data"]["transactions"]
-        super().__init__(data=json_response["data"]["transactions"])
+        self.data = json_response["data"]
+        super().__init__(data=json_response["data"])
 
         return self.status
 
