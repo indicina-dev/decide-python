@@ -9,13 +9,26 @@ class Currency(Enum):
 
 class Bank(Enum):
     ACCESS = "044"
+    ALAT = "035A"
     CIB = "818147"
+    ECOBANK = "050"
     FBN = "011"
+    FCMB = "214"
+    FIDELITY = "070"
+    GLOBUS = "00103"
     GTB = "058"
     HSBC = "818039"
-    UBA = "033"
+    KEYSTONE = "082"
+    KUDA = "50211"
     MBS = "041"
     MPESA = "404001"
+    PROVIDUS ="101"
+    POLARIS = "076"
+    STANBIC = "221"
+    STERLING = "232"
+    UBA = "033"
+    UNITY = "215"
+    UNION = "032"
     ZENITH = "057"
 
 
