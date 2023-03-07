@@ -1,4 +1,7 @@
+import requests
 from enum import Enum
+
+BANK_LIST_URL = "https://api.indicina.co/api/v3/banks"
 
 
 class Currency(Enum):
@@ -30,6 +33,15 @@ class Bank(Enum):
     UNITY = "215"
     UNION = "032"
     ZENITH = "057"
+
+    @classmethod
+    def get_bank_list(cls):
+        response = requests.get(BANK_LIST_URL)
+        if response.status_code == 200:
+            bank_list = response.json()['data']
+            return [(bank['name'], bank['code']) for bank in bank_list]
+        else:
+            raise Exception(f"Failed to get bank list. Status code: {response.status_code}")
 
 
 class StatementType(Enum):
