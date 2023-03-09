@@ -17,6 +17,8 @@
       - [PDF Statement](#pdf-statement)
       - [CSV Statement](#csv-statement)
       - [Sample Response](#sample-response)
+      - [Supported Banks](#supported-banks)
+      - [Analysis Result](#analysis)
 - [Contribution](#contribution)
   - [Setup Project](#setup-project)
     - [Cloning the project](#cloning-the-project)
@@ -30,6 +32,9 @@
 # About
 Decide helps users make risk-free decisions based on an analysis of their banking transactions using extracted financial data.
 The Decide SDK helps developers plug into the functionalities of Decide from their python projects.
+
+- **Website:** https://developers.indicina.co
+- **Documentation:** https://developers.indicina.co/docs/decide-python-library
 
 # Using the App
 ### Installation
@@ -109,7 +114,6 @@ analyis: Analysis = statement.analyze()
 
 print(analysis)
 print(f"Analysis status is: {analysis.status}")
-
 ```
 
 #### CSV Statement
@@ -121,6 +125,9 @@ from decide.models.analysis import Analysis
 statement = CSVStatement(csv_path="AverageOtherIncome.csv",
                          customer=customer)
 analyis: Analysis = statement.analyze()
+
+print(analysis)
+print(f"Analysis status is: {analysis.status}")
 ```
 
 #### Sample Response
@@ -244,6 +251,146 @@ analyis: Analysis = statement.analyze()
     }
 }
 
+```
+
+#### Supported Banks
+In selecting a bank to use for analysis, we maintain an ENUM of supported banks [here](decide/models/enums.py#L13). We have also provided a convenient method to fetch a current list of supported banks.
+
+```
+from decide import PDFStatement, Bank
+
+# Enum selection of Bank
+statement = PDFStatement(
+            ...,
+            bank=Bank.GTB,
+            ...)
+```
+
+```
+from decide import Bank
+
+# Get bank list
+supported_bank_list = Bank.get_bank_list()
+
+
+print(supported_bank_list)
+
+output: A list of tuples [(bank_name, bank_code)]
+[('Guaranty Trust Bank', '058'), ('Access Bank', '044')...]
+```
+
+#### Analysis
+When the Decide API sends a response, the response is represented in the Analysis class.
+
+Anatomy of an Analysis
+```
+Analysis
+|
+|-- behaviouralAnalysis: `BehaviouralAnalysis`
+|       |-- accountSweep
+|       |-- gamblingRate
+|       |-- inflowOutflowRate
+|       |-- loanInflowRate
+|       |-- loanRepaymentInflowRate
+|       |-- loanRepayments
+|       |-- topIncomingTransferAccount
+|       |-- topTransferRecipientAccount
+            |-- loanAmount
+|
+|-- cashFlowAnalysis: `CashFlowAnalysis`
+|       |-- accountActivity
+|       |-- averageBalance
+|       |-- averageCredits
+|       |-- averageDebits
+|       |-- closingBalance
+|       |-- firstDay
+|       |-- lastDay
+|       |-- monthPeriod
+|       |-- netAverageMonthlyEarnings
+|       |-- noOfTransactingMonths
+|       |-- totalCreditTurnover
+|       |-- totalDebitTurnover
+|       |-- yearInStatement
+|
+|-- incomeAnalysis: `IncomeAnalysis`
+|       |-- averageOtherIncome
+|       |-- averageSalary
+|       |-- confidenceIntervalOnSalaryDetection
+|       |-- expectedSalaryDay
+|       |-- lastSalaryDate
+|       |-- medianIncome
+|       |-- numberOtherIncomePayments
+|       |-- numberOfSalaryPayments
+|       |-- salaryEarner
+|       |-- salaryFrequency
+|       |-- gigWorker
+|
+|-- spendAnalysis: `SpendAnalysis`
+|       |-- expenseChannels: `ExpenseChannels`
+|       |       |-- atmSpend
+|       |       |-- webSpend
+|       |       |-- posSpend
+|       |       |-- ussdTransactions
+|       |       |-- mobileSpend
+|       |       |-- spendOnTransfers
+|       |       |-- internationalTransactionsSpend
+|       |-- expenseCategories: `ExpenseCategories`
+|       |       |-- bills
+|       |       |-- entertainment
+|       |       |-- savingsAndInvestments
+|       |       |-- gambling
+|       |       |-- airtime
+|       |       |-- bankCharges
+|       |-- averageRecurringExpense
+|       |-- hasRecurringExpense
+|       |-- totalExpenses
+|-- transactionPatternAnalysis: `TransactionPatternAnalysis`
+|       |-- highestMAWOCredit
+|       |-- highestMAWODebit
+|       |-- lastDateOfCredit
+|       |-- lastDateOfDebit
+|       |-- MAWWZeroBalanceInAccount
+|       |-- mostFrequentBalanceRange
+|       |-- mostFrequentTransactionRange
+|       |-- NODWBalanceLess5000
+|       |-- recurringExpense
+|       |-- transactionsBetween100000And500000
+|       |-- transactionsBetween10000And100000
+|       |-- transactionsGreater500000
+|       |-- transactionsLess10000
+|       |-- transactionRanges
+|       |-- NODWBalanceLess
+|-- status
+```
+
+**Analysis Status**
+
+Some bank statement analyses (e.g. PDF) are asynchronous. You may not get the results of the analysis immediately.
+
+You may need to get the status of an analysis.
+
+PDFStatus could take one of the following values.
+
+| Status	  | Value	     | Description                       |
+| ----------- | ------------ | --------------------------------- |
+| DONE	      | DONE	     | The analysis is done              |
+| FAILED	  | FAILED	     | The analysis failed               |
+| IN_PROGRESS | IN_PROGRESS	 | The analysis is still in progress |
+
+```
+# Example usage on accessing the analysis response
+analysis = statement.analyze()
+print(f"Analysis status is: {analysis.status}")
+
+# wait for analysis to be done
+time.sleep(3)
+
+print(analysis)
+print(f"Analysis status is: {analysis.status}")
+print(f"Credit turnover is: {analysis.cashFlowAnalysis.totalCreditTurnover}")
+print(f"Average salary is: {analysis.incomeAnalysis.averageSalary}")
+print(f"{analysis.behaviouralAnalysis}")
+print(analysis.transaction_tags)
 ```
 
 # Contribution
