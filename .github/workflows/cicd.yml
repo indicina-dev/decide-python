@@ -48,6 +48,6 @@ jobs:
     - name: Use Python Semantic Release to prepare Release
       uses: relekang/python-semantic-release@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.FEB_2024_SECRET }}
         repository_username: __token__
         repository_password: ${{ secrets.PYPI_API_TOKEN }}
