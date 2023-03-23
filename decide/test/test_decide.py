@@ -1,12 +1,10 @@
 import json
 import os
-import time
-import time, secrets
+import secrets
 from unittest import mock
 from unittest.mock import patch, MagicMock
 
-from decide import Customer, JSONStatement, StatementFormat, PDFStatement, Bank, PDFStatus, CSVStatement
-from decide.auth import Auth
+from decide import Customer, JSONStatement, StatementFormat, PDFStatement, Bank, CSVStatement
 
 
 def auth_code_gen(secret=False):
@@ -182,3 +180,109 @@ def test_transaction_tags():
         analysis = json_statement_mock.analyze()
         tags = analysis['transaction_tags']
         print()
+
+
+@patch.object(JSONStatement, 'analyze')
+def test_statement_with_scorecard(json_statement_mock):
+    with open("decide/test/data/test1.json", "r") as f:
+        statement = json.loads(f.read())
+
+    with mock.patch.dict(os.environ, {"INDICINA_CLIENT_ID": "indicina",
+                                      "INDICINA_CLIENT_SECRET": "MD5Y106-RYG4STY-H3B33FS-CRS5AMG",
+                                      "TEST_MODE": "true"}):
+        customer = Customer(customer_id="ckq9ehqmv000001me62y85j1u")
+
+        json_statement_mock = JSONStatement(statement_format=StatementFormat.MONO,
+                                  statement=statement, customer=customer, scorecard_ids=[198])
+        json_statement_mock.analyze = MagicMock(name="analyze")
+        json_statement_mock.analyze.return_value = {
+            "status": "success",
+            "job_id": 1,
+            "cashFlowAnalysis": {
+                "yearInStatement": "2022",
+                "accountActivity": 0.33,
+                "monthPeriod": "July - July"
+            },
+            "spendAnalysis": {
+                "averageRecurringExpense": 112775,
+                "expenseChannels": {
+                    "atmSpend": 0,
+                },
+            },
+            "statement_type": "json",
+            "scorecardResults": [
+            {
+                "name": "Scorecard 198",
+                "affordability": {
+                    "breakdown": [
+                        {
+                            "tenor": 3,
+                            "tenor_type": "months",
+                            "value": -824.6496774193548
+                        },
+                        {
+                            "tenor": 6,
+                            "tenor_type": "months",
+                            "value": -838.1685245901639
+                        },
+                        {
+                            "tenor": 9,
+                            "tenor_type": "months",
+                            "value": -842.7738461538461
+                        }
+                    ],
+                    "currency": "NGN"
+                },
+                "rules": {
+                    "id": "63dcf5b8a135cd001337324f",
+                    "name": "Scorecard 198",
+                    "ruleSet": {
+                        "negativeOutcome": "Decline",
+                        "positiveOutcome": "Accept"
+                    },
+                    "outcome": {
+                        "pass": True,
+                        "action": "OUTCOME_ACCEPT"
+                    },
+                    "blocks": [
+                        {
+                            "rules": [
+                                {
+                                    "rule": {
+                                        "order": 1,
+                                        "value": "10000000",
+                                        "ruleType": "cashFlowAnalysis.averageBalance",
+                                        "condition": "CONDITION_GREATER_THAN",
+                                        "operator": "OPERATOR_NONE"
+                                    },
+                                    "input": {
+                                        "value": "9839.29",
+                                        "skipped": False
+                                    },
+                                    "outcome": {
+                                        "pass": True
+                                    }
+                                }
+                            ],
+                            "block": {
+                                "order": 1,
+                                "operator": "OPERATOR_NONE",
+                                "negativeOutcome": "OUTCOME_MANUAL_REVIEW"
+                            },
+                            "outcome": {
+                                "pass": True
+                            }
+                        }
+                    ]
+                },
+                "scorecardId": 198
+            }
+        ],
+        }
+
+        analysis = json_statement_mock.analyze()
+
+        assert analysis is not None
+        assert analysis['status'] == "success"
+        assert type(analysis['scorecardResults']) == list
+        assert analysis['scorecardResults'][0]['scorecardId'] == 198
