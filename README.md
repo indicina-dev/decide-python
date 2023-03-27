@@ -393,6 +393,162 @@ print(f"{analysis.behaviouralAnalysis}")
 print(analysis.transaction_tags)
 ```
 
+### Rules Engine Documentation
+
+The Rules Engine enables merchants to set up an automated decisioning process for lending, based on pre-determined conditions tailored to their unique use case. It allows users to:
+
+- Develop multiple rule-based conditions
+- Analyze statements with pre-determined conditions and rules that automate the decision-making process
+- Automatically filter qualifying applications based on the set rules
+- Set up an affordability logic to reveal what applicants can pay back
+
+#### Import Required Libraries
+```python
+from decide.models.rules_engine import (
+    Rule, RuleType, Condition, Operator, Outcome, Block, Status, BooleanRuleSet, Affordability, Duration, ScorecardAPI, ScorecardRequest, ScorecardResponse, ScorecardExecuteRequest)
+```
+
+#### Set Environment Variables
+```python
+import os
+os.environ["INDICINA_CLIENT_ID"] = "xxxxxx"
+os.environ["INDICINA_CLIENT_SECRET"] = "xxxxx"
+```
+
+#### Initialize ScorecardAPI
+```python 
+sc = ScorecardAPI()
+```
+
+#### Create Scorecard
+`Define Rules`
+
+A Rule is defined as a condition to be evaluated on a certain value. You can have as many rules as you need. A Rule consists of several properties, including:
+
+- order: an integer representing the order in which the rule is evaluated
+- rule_type: an Enum representing the type of rule (e.g., average balance, loan amount, etc.)
+- value: a string representing the value of the rule (e.g., "10000" for an average balance of 10,000)
+- condition: an ENUM representing the condition to be evaluated (e.g., "is equal to", "less than or equal to", etc.)
+- operator: an ENUM representing the logical operator to be used when evaluating the rule (e.g., "and", "or", etc.)
+
+For example, the first rule defined in the code states that the average balance of an account must be exactly 10,000.
+
+```python
+rules = [
+    Rule(order=1, rule_type=RuleType.AVERAGE_BALANCE, value="10000", condition=Condition.IS_EQUAL, operator=Operator.OPERATOR_AND),
+    Rule(order=2, rule_type=RuleType.AVERAGE_CREDITS, value="5000", condition=Condition.IS_EQUAL, operator=Operator.OPERATOR_AND),
+    Rule(order=3, rule_type=RuleType.LOAN_AMOUNT, value="20000", condition=Condition.LESS_THAN_EQUAL_TO, operator=Operator.OPERATOR_AND),]
+```
+
+`Create a Block`
+
+A Block is a collection of Rule objects that are evaluated together using a logical operator (e.g., "and", "or", etc.). A Block consists of several properties, including:
+
+rules: a list of Rule objects
+order: an integer representing the order in which the block is evaluated
+operator: an ENUM representing the logical operator to be used when evaluating the block (e.g., "and", "or", etc.)
+negative_outcome: an Enum representing the outcome of the block if the evaluation is false
+```python
+block = Block(rules=rules, order=1, operator=Operator.OPERATOR_NONE, negative_outcome=Outcome.DECLINE)
+```
+
+`Create a Boolean Rule Set`
+
+A BooleanRuleSet is a collection of Block objects that are evaluated together using a logical operator (e.g., "and", "or", etc.). A BooleanRuleSet consists of several properties, including:
+
+- name: a string representing the name of the rule set
+- positive_outcome: an ENUM representing the outcome of the rule set if the evaluation is true
+- negative_outcome: an ENUM representing the outcome of the rule set if the evaluation is false
+- owner: a string representing the owner of the rule set
+- blocks: a list of Block objects
+```python
+boolean_rule_set = BooleanRuleSet(name="DPL", positive_outcome=Outcome.ACCEPT, negative_outcome=Outcome.DECLINE, owner="indicina", blocks=[block])
+```
+
+`Define Affordability Logic`
+
+Affordability logic defines the logic to determine what the applicant can pay back. It is made up of two properties:
+
+- monthly_interest_rate: interest rate per month
+- monthly_durations: a list of Duration objects representing the tenures they wish to provide their service for
+```python
+affordability_logic = Affordability(monthly_interest_rate=10, monthly_durations=[Duration(3), Duration(4)])
+```
+
+`Create a Scorecard Request`
+
+The ScorecardRequest object is the final object that is created and is used to make requests to the ScorecardAPI. It contains the name of the scorecard, the boolean rule set, the affordability logic, and the status of the scorecard (whether it is enabled or disabled).
+
+```python
+sc_request = ScorecardRequest(name="DPL", boolean_rule_set=boolean_rule_set, affordability=affordability_logic, status=Status.ENABLED)
+scorecard = sc.create_scorecard(sc_request)
+scorecard.scorecard_id
+```
+
+`Read Scorecard`
+
+To retrieve an existing scorecard, we can use the get_scorecard method. The method takes the ID of the scorecard as input and returns a Scorecard object.
+
+```python
+card_61 = sc.read_scorecard("61")
+```
+
+`Update Scorecard`
+
+We can create a new ScorecardRequest object with the updated information and use the update_scorecard method. The method takes the ID of the scorecard and the new ScorecardRequest object as input and updates the scorecard with the new information.
+
+```python
+rules = [
+    Rule(order=1, rule_type=RuleType.AVERAGE_BALANCE, value="1000", condition=Condition.IS_EQUAL, operator=Operator.OPERATOR_AND),
+    Rule(order=2, rule_type=RuleType.AVERAGE_CREDITS, value="500", condition=Condition.IS_EQUAL, operator=Operator.OPERATOR_AND),
+    Rule(order=3, rule_type=RuleType.LOAN_AMOUNT, value="2000", condition=Condition.LESS_THAN_EQUAL_TO, operator=Operator.OPERATOR_AND),
+]
+
+block = Block(rules=rules, order=1, operator=Operator.OPERATOR_NONE, negative_outcome=Outcome.DECLINE)
+
+boolean_rule_set = BooleanRuleSet(name="DPL", positive_outcome=Outcome.ACCEPT, negative_outcome=Outcome.DECLINE, owner="indicina", blocks=[block])
+
+affordability_logic = Affordability(20, [Duration(5), Duration(14)])
+
+sc_updated_request = ScorecardRequest(name="DPL_CHANGE_NAME", boolean_rule_set=boolean_rule_set, affordability=affordability_logic, status=Status.ENABLED)
+card_61_updated = sc.update_scorecard(str(card_61.scorecard_id), sc_updated_request)
+```
+
+`Delete Scorecard`
+
+To delete an existing scorecard, we can use the delete_scorecard method. The method takes the ID of the scorecard as input and deletes the scorecard.
+
+```python
+sc.delete_scorecard(str(card_61.scorecard_id))
+```
+
+`Execute Scorecard on Analysis`
+
+To execute a scorecard on an existing Analysis, we can use the execute_scorecard method. The method takes the ID of the existing analysis as input and a list of scorecard IDs to run on the analysis.
+
+```python
+a_id = "xxxxxxxxxxxxxxxxxxx"
+s_ids = [32, 45, 47]
+scorecard_execute_request = ScorecardExecuteRequest(analysis_id=a_id, scorecard_ids=s_ids)
+res = sc.execute_scorecard(scorecard_execute_request)
+print(res['scorecardResults'])
+```
+
+`Analyse statement with Scorecard`
+
+To analyse a statement with some already created scorecards/rules, pass in the ids of the scorecards as below:
+
+```python
+statement = JSONStatement(statement_format=StatementFormat.MONO, statement=statement, customer=customer, scorecard_ids=[47])
+analysis: Analysis = statement.analyze()
+
+print(analysis)
+print(f"Analysis status is: {analysis.status}")
+```
+
+This concludes the documentation for using the Rules Engine, which covers creating, updating, deleting, and executing scorecards on existing analyses. Use this guide as a reference for implementing the automated decision-making process tailored to your specific lending use case.
+
+
 # Contribution
 ## Setup Project
 The link for this projects's repository can be found [here](https://github.com/indicina-dev/decide-python)
