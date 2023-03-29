@@ -13,12 +13,13 @@
       - [sh](#sh)
       - [Python](#python)
     - [Sample Code](#sample-code)
-      - [JSON STATEMENT](#json-statement)
+      - [JSON Statement](#json-statement)
       - [PDF Statement](#pdf-statement)
       - [CSV Statement](#csv-statement)
       - [Sample Response](#sample-response)
       - [Supported Banks](#supported-banks)
       - [Analysis Result](#analysis)
+      - [Rules Engine Documentation](#rules-engine-documentation)
 - [Contribution](#contribution)
   - [Setup Project](#setup-project)
     - [Cloning the project](#cloning-the-project)
@@ -57,14 +58,16 @@ os.environ["INDICINA_CLIENT_SECRET"] = "my_secret"
 You can get your `INDICINA_CLIENT_ID` and `INDICINA_CLIENT_SECRET` from [GitHub Pages](https://developers.indicina.co/docs/decide-api-keys).
 
 ### Sample Code
-#### JSON STATEMENT
+#### JSON Statement
 ```
 from decide.models.analysis import Analysis
 from decide.models.customer import Customer
 from decide.models.statement import JSONStatement
 import json
 
-statement = json.loads("""{
+customer = Customer(customer_id="my_customer")
+
+json_statement = json.loads("""{
     "paging": {
         "total": 190,
         "page": 2,
@@ -92,7 +95,7 @@ statement = json.loads("""{
 }""")
 
 statement = JSONStatement(statement_format=StatementFormat.MONO, statement=json_statement, customer=customer)
-analyis: Analysis = statement.analyze()
+analysis: Analysis = statement.analyze()
 
 print(analysis)
 print(f"Analysis status is: {analysis.status}")
@@ -105,12 +108,14 @@ print(f"Analysis status is: {analysis.status}")
 from decide import PDFStatement
 from decide.models.analysis import Analysis
 ...
+
+customer = Customer(customer_id="my_customer")
 statement = PDFStatement(customer=customer,
                          pdf_path="statement.pdf",
                          bank=Bank.ACCESS,
                          currency=Currency.NGN)
 
-analyis: Analysis = statement.analyze()
+analysis: Analysis = statement.analyze()
 
 print(analysis)
 print(f"Analysis status is: {analysis.status}")
@@ -120,11 +125,12 @@ print(f"Analysis status is: {analysis.status}")
 ```
 from decide import CSVStatement
 from decide.models.analysis import Analysis
-
 ...
+
+customer = Customer(customer_id="my_customer")
 statement = CSVStatement(csv_path="AverageOtherIncome.csv",
                          customer=customer)
-analyis: Analysis = statement.analyze()
+analysis: Analysis = statement.analyze()
 
 print(analysis)
 print(f"Analysis status is: {analysis.status}")
@@ -482,7 +488,7 @@ The ScorecardRequest object is the final object that is created and is used to m
 ```python
 sc_request = ScorecardRequest(name="DPL", boolean_rule_set=boolean_rule_set, affordability=affordability_logic, status=Status.ENABLED)
 scorecard = sc.create_scorecard(sc_request)
-scorecard.scorecard_id
+print(scorecard.scorecard_id)
 ```
 
 `Read Scorecard`
