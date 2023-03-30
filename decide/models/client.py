@@ -61,3 +61,11 @@ class DecideClient:
 	def put(self, **kwargs) -> Union[list, dict, Response]:
 		response = self._req(method="put", **kwargs)
 		return response.json()
+	
+	def patch(self, body: Any) -> Union[list, dict, Response]:
+		response = self._req(method="patch", json=body)
+		return response.json()
+	
+	def delete(self, **kwargs) -> Union[list, dict, Response]:
+		response = self._req(method="delete", **kwargs)
+		return response.json()

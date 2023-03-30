@@ -1,6 +1,5 @@
 import json
 from abc import ABC
-
 from .enums import StatementType, PDFStatus
 from .client import DecideClient
 from .base import BaseModel
@@ -15,6 +14,7 @@ class Analysis(BaseModel):  # pylint: disable=too-few-public-methods
     spendAnalysis: "SpendAnalysis" = None
     transactionPatternAnalysis: "TransactionPatternAnalysis" = None
     accountDetails = None
+    scorecardResults: list = None
 
     def __init__(self, data: dict,
                  status,
@@ -236,5 +236,5 @@ _analysis_call_dict = {
     "incomeAnalysis": IncomeAnalysis,
     "spendAnalysis": SpendAnalysis,
     "transactionPatternAnalysis": TransactionPatternAnalysis,
-    "accountDetails": AccountDetails
+    "accountDetails": AccountDetails,
 }

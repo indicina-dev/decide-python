@@ -4,6 +4,7 @@ from .analysis import Analysis
 from .client import DecideClient
 from .customer import Customer
 from .enums import Currency, Bank, StatementType, StatementFormat
+from typing import Optional, List
 
 
 class DecideStatement:
@@ -13,7 +14,7 @@ class DecideStatement:
     job_id: str = None
 
     def __init__(self, path: str, content_type: str):
-        self.client = DecideClient(path, content_type)
+        self.client = DecideClient(f"client/{path}", content_type)
 
     def analyze(self) -> Analysis:
         """
@@ -46,14 +47,14 @@ class PDFStatement(DecideStatement):
     """
     Example:
         pdf  = PDFStatement("my_statement.pdf", bank=Bank.UBA, customer=customer,
-                            password="pdf_pass")
+                            password="pdf_pass", scorecard_ids=[1,2,3])
         analysis = pdf.analyze()
     """
     def __init__(self, pdf_path: str,
                  bank: Bank,
                  customer: Customer,
                  currency: Currency = Currency.NGN,
-                 password: str = None):
+                 password: str = None, scorecard_ids: Optional[List[int]] = None):
         """
         To create a statement for PDF analysis
         :param pdf_path: Path to the bank statement in PDF format
@@ -66,6 +67,8 @@ class PDFStatement(DecideStatement):
         :type currency: Currency
         :param password: Password to the document (if required)
         :type password: str
+        :param scorecard_ids: Optional list of scorecard ids to run on the statement
+        :type scorecard_ids: list[int]
         """
         super().__init__("pdf/extract", "multipart/form-data")
         self.statement_type = StatementType.PDF
@@ -75,6 +78,7 @@ class PDFStatement(DecideStatement):
         self.bank_code = bank
         self.currency = currency
         self.password = password
+        self.scorecard_ids = scorecard_ids
 
     def build_request_body(self) -> None:
         self.request_body = {
@@ -84,6 +88,9 @@ class PDFStatement(DecideStatement):
             "request_type": "score",
             "customer_id": self.customer_id
         }
+        if self.scorecard_ids:
+            self.request_body["scorecardIds"] = self.scorecard_ids
+
         if self.password:
             self.request_body["pdf_password"] = self.password
 
@@ -91,11 +98,11 @@ class PDFStatement(DecideStatement):
 class CSVStatement(DecideStatement):
     """
     Example:
-        csv = CSVStatement("statement.csv", customer=customer)
+        csv = CSVStatement("statement.csv", customer=customer, scorecard_ids=[1,2,3])
         csv.analyze()
     """
     def __init__(self, csv_path: str,
-                 customer: Customer):
+                 customer: Customer, scorecard_ids: Optional[List[int]] = None):
         """
         To create a statement for CSV analysis
 
@@ -103,27 +110,32 @@ class CSVStatement(DecideStatement):
         :type csv_path: str
         :param customer: The customer who owns the statement
         :type customer: Customer
+        :param scorecard_ids: Optional list of scorecard ids to run on the statement
+        :type scorecard_ids: list[int]
         """
         super().__init__("bsp/file", "multipart/form-data")
         self.statement_type = StatementType.CSV
         self.customer_id = customer.customer_id
         self.csv_path = csv_path
+        self.scorecard_ids = scorecard_ids
 
     def build_request_body(self) -> None:
         self.request_body = {
             "file_statement": self.csv_path,
             "customer[id]": self.customer_id
         }
+        if self.scorecard_ids:
+            self.request_body["scorecardIds"] = self.scorecard_ids
 
 
 class JSONStatement(DecideStatement):
     """
     Example:
-        json_statement = JSONStatement(StatementFormat.MONO, json_statement, customer=customer)
+        json_statement = JSONStatement(StatementFormat.MONO, json_statement, customer=customer, scorecard_ids=[1,2,3])
         json_statement.analyze()
     """
     def __init__(self, statement_format: StatementFormat, statement: dict,
-                 customer: Customer):
+                 customer: Customer, scorecard_ids: Optional[List[int]] = None):
         """
         To create a statement for JSON analysis
         :param statement_format: The bank statement format. This usually depends
@@ -133,6 +145,8 @@ class JSONStatement(DecideStatement):
         :type statement: dict
         :param customer: The customer whose statement is to be analyzed.
         :type customer: Customer
+        :param scorecard_ids: Optional list of scorecard ids to run on the statement
+        :type scorecard_ids: list[int]
         """
         super().__init__("bsp", "application/json")
         self.statement_type = StatementType.JSON
@@ -140,6 +154,7 @@ class JSONStatement(DecideStatement):
         self.format = statement_format.value
         self.statement = statement
         self.customer = customer
+        self.scorecard_ids = scorecard_ids
 
     def build_request_body(self) -> None:
         customer_json = {
@@ -152,3 +167,5 @@ class JSONStatement(DecideStatement):
                 "content": self.statement
             }
         }
+        if self.scorecard_ids:
+            self.request_body["scorecardIds"] = self.scorecard_ids
