@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-03-30)
+### Feature
+* **rules-engine:** Add support for rules engine ([#30](https://github.com/indicina-dev/decide-python/issues/30)) ([`1ba06bd`](https://github.com/indicina-dev/decide-python/commit/1ba06bdfe8027286773b614770cd705494e57a2e))
+* **rules-engine:** Add support for rules engine ([`19b3795`](https://github.com/indicina-dev/decide-python/commit/19b3795fb963844c94197effc6d8fdb065b7794d))
+
+### Documentation
+* Fix minor typos ([`9077068`](https://github.com/indicina-dev/decide-python/commit/9077068ceb2ff9b594d9f4a8d8c8476331a43c21))
+* Update README with rules engine info ([`ac2b512`](https://github.com/indicina-dev/decide-python/commit/ac2b5124a317526eb958d839472c7254c069914e))
+
 ## v0.4.0 (2023-03-10)
 ### Feature
 * Add method to retrieve bank list from API ([`56d92d9`](https://github.com/indicina-dev/decide-python/commit/56d92d9547a74eec5045eb25ba05b6f7c292722b))
