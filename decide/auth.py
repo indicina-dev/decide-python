@@ -10,7 +10,7 @@ from decide.models.error import IllegalAssignmentException, DecideException
 
 retries = Retry(total=MAX_RETRIES, backoff_factor=1, status_forcelist=[ 429, 500, 502, 503, 504 ])
 adapter = HTTPAdapter(max_retries=retries)
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
 
 
 def _fetch_auth_code(url) -> Optional[str]:
@@ -32,16 +32,16 @@ def _fetch_auth_code(url) -> Optional[str]:
             return response["data"]["token"]
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP Error: %s", errh)
-        raise DecideException("Unable to fetch auth code due to HTTP error.")
+        raise DecideException("Unable to fetch auth code due to HTTP error.") from errh
     except requests.exceptions.ConnectionError as errc:
         logger.error("Connection error: %s", errc)
-        raise DecideException("Unable to connect to the Decide API.")
+        raise DecideException("Unable to connect to the Decide API.") from errc
     except requests.exceptions.Timeout as errt:
         logger.error("Timeout Error: %s", errt)
-        raise DecideException("Timeout occurred while fetching auth code.")
+        raise DecideException("Timeout occurred while fetching auth code.") from errt
     except requests.exceptions.RequestException as err:
         logger.error("Request Exception: %s", err)
-        raise DecideException("An error occurred while fetching auth code.")
+        raise DecideException("An error occurred while fetching auth code.") from err
 
 
 class Auth:
