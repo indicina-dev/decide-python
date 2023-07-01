@@ -32,7 +32,7 @@ def _fetch_auth_code(url) -> Optional[str]:
             return response["data"]["token"]
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP Error: %s", errh)
-        raise DecideException("Unable to fetch auth code due to HTTP error.") from errh
+        raise DecideException(response.json()["message"]) from errh
     except requests.exceptions.ConnectionError as errc:
         logger.error("Connection error: %s", errc)
         raise DecideException("Unable to connect to the Decide API.") from errc
