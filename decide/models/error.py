@@ -7,8 +7,11 @@ class DecideException(Exception):
         self.additional_info = kwargs
     
     def __str__(self):
-        _ = ', '.join(f"{key}={value}" for key, value in self.additional_info.items())
-        return f"{self.message}"
+        if self.additional_info:
+                additional_info_str = ', '.join(f"{key}={value}" for key, value in self.additional_info.items())
+                return f"Decide Exception: {self.message}. Additional info: {additional_info_str}"
+        else:
+            return f"Decide Exception: {self.message}"
 
 
 class IllegalAssignmentException(DecideException):

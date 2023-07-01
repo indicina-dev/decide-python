@@ -3,13 +3,14 @@ import os
 from typing import Optional
 
 import requests
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, Retry
 
 from decide.globals import MAX_RETRIES, LOGIN_URL
 from decide.models.error import IllegalAssignmentException, DecideException
 
-adapter = HTTPAdapter(max_retries=MAX_RETRIES)
-logger = logging.getLogger(__name__)
+retries = Retry(total=MAX_RETRIES, backoff_factor=1, status_forcelist=[ 429, 500, 502, 503, 504 ])
+adapter = HTTPAdapter(max_retries=retries)
+logger = logging.getLogger(__name__)    
 
 
 def _fetch_auth_code(url) -> Optional[str]:
@@ -25,18 +26,22 @@ def _fetch_auth_code(url) -> Optional[str]:
                 "client_secret": client_secret
             })
 
-            if response.status_code != 200:
-                logger.error("Unable to fetch auth code.")
-                return None
+            response.raise_for_status()
             response = response.json()
-            if response["status"] != "success":
-                logger.error("Unable to fetch auth code.")
-                return None
+
             return response["data"]["token"]
-    except ConnectionError as error:
-        logger.error("Unable to connect to Decide API. %s", error)
-        DecideException("Unable to reach Decide server. Check connection.")
-        return None
+    except requests.exceptions.HTTPError as errh:
+        logger.error("HTTP Error: %s", errh)
+        raise DecideException("Unable to fetch auth code due to HTTP error.")
+    except requests.exceptions.ConnectionError as errc:
+        logger.error("Connection error: %s", errc)
+        raise DecideException("Unable to connect to the Decide API.")
+    except requests.exceptions.Timeout as errt:
+        logger.error("Timeout Error: %s", errt)
+        raise DecideException("Timeout occurred while fetching auth code.")
+    except requests.exceptions.RequestException as err:
+        logger.error("Request Exception: %s", err)
+        raise DecideException("An error occurred while fetching auth code.")
 
 
 class Auth:
