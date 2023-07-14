@@ -1,3 +1,4 @@
+# pylint: disable=too-many-locals
 import logging
 import os
 from typing import Optional
@@ -8,9 +9,9 @@ from requests.adapters import HTTPAdapter, Retry
 from decide.globals import MAX_RETRIES, LOGIN_URL
 from decide.models.error import IllegalAssignmentException, DecideException
 
-retries = Retry(
-    total=MAX_RETRIES, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504]
-)
+status_forcelist = [429, 500, 502, 503, 504]
+retries = Retry(total=MAX_RETRIES, backoff_factor=1, status_forcelist=status_forcelist)
+
 adapter = HTTPAdapter(max_retries=retries)
 logger = logging.getLogger(__name__)
 
@@ -20,10 +21,14 @@ def _fetch_auth_code(url) -> Optional[str]:
     client_secret = os.getenv("INDICINA_CLIENT_SECRET")
 
     if not client_id or not client_secret:
-        err_msg = "Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables."
+        err_msg = (
+            "Both INDICINA_CLIENT_ID and "
+            "INDICINA_CLIENT_SECRET must be set as "
+            "environment variables."
+        )
+
         logger.error(err_msg)
         raise DecideException(message=err_msg, status_code=400)
-
 
     payload = {"client_id": client_id, "client_secret": client_secret}
 
