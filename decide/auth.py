@@ -8,22 +8,27 @@ from requests.adapters import HTTPAdapter, Retry
 from decide.globals import MAX_RETRIES, LOGIN_URL
 from decide.models.error import IllegalAssignmentException, DecideException
 
-retries = Retry(total=MAX_RETRIES, backoff_factor=1, status_forcelist=[ 429, 500, 502, 503, 504 ])
+retries = Retry(
+    total=MAX_RETRIES, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504]
+)
 adapter = HTTPAdapter(max_retries=retries)
 logger = logging.getLogger(__name__)
+
 
 def _fetch_auth_code(url) -> Optional[str]:
     client_id = os.getenv("INDICINA_CLIENT_ID")
     client_secret = os.getenv("INDICINA_CLIENT_SECRET")
 
     if not client_id or not client_secret:
-        logger.error("Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables.")
-        raise DecideException(message="Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables.", status_code=400)
+        logger.error(
+            "Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables."
+        )
+        raise DecideException(
+            message="Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables.",
+            status_code=400,
+        )
 
-    payload = {
-        "client_id": client_id,
-        "client_secret": client_secret
-    }
+    payload = {"client_id": client_id, "client_secret": client_secret}
 
     logger.info("Fetching authorization token...")
     try:
@@ -37,29 +42,45 @@ def _fetch_auth_code(url) -> Optional[str]:
             try:
                 return response_json["data"]["token"]
             except KeyError:
-                raise DecideException("Token not found in the response.", response.status_code, url, payload, response.headers) from None
+                raise DecideException(
+                    "Token not found in the response.",
+                    response.status_code,
+                    url,
+                    payload,
+                    response.headers,
+                ) from None
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP Error: %s", errh)
         error_message = f"HTTP Error: {errh}"
         status_code = errh.response.status_code
         endpoint = url
         response_headers = response.headers
-        raise DecideException(error_message, status_code, endpoint, payload, response_headers) from errh
+        raise DecideException(
+            error_message, status_code, endpoint, payload, response_headers
+        ) from errh
     except requests.exceptions.ConnectionError as errc:
         logger.error("Connection Error: %s", errc)
-        raise DecideException(f"Connection Error: {errc}", request_payload=payload) from errc
+        raise DecideException(
+            f"Connection Error: {errc}", request_payload=payload
+        ) from errc
     except requests.exceptions.Timeout as errt:
         logger.error("Timeout Error: %s", errt)
-        raise DecideException(f"Timeout Error: {errt}", request_payload=payload) from errt
+        raise DecideException(
+            f"Timeout Error: {errt}", request_payload=payload
+        ) from errt
     except requests.exceptions.RequestException as err:
         logger.error("Request Exception: %s", err)
-        raise DecideException(f"Request Exception: {err}", request_payload=payload) from err
+        raise DecideException(
+            f"Request Exception: {err}", request_payload=payload
+        ) from err
+
 
 class Auth:
     """
     Singleton class for authorization.
     Do not use this class directly.
     """
+
     __instance = None
     _code = None
 
