@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.1 (2023-07-14)
+
+### Fix
+
+* **auth:** Catch exceptions improvements ([#32](https://github.com/indicina-dev/decide-python/issues/32)) ([`0220352`](https://github.com/indicina-dev/decide-python/commit/022035227070de4b7e182020d453ea39afb4d150))
+* Catch exceptions efficiently ([`fb8dd28`](https://github.com/indicina-dev/decide-python/commit/fb8dd289541c067cd8323c4bbdd945ff495045bb))
+
 ## v0.5.0 (2023-03-30)
 ### Feature
 * **rules-engine:** Add support for rules engine ([#30](https://github.com/indicina-dev/decide-python/issues/30)) ([`1ba06bd`](https://github.com/indicina-dev/decide-python/commit/1ba06bdfe8027286773b614770cd705494e57a2e))
