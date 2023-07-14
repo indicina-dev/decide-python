@@ -4,7 +4,12 @@ import secrets
 from unittest import mock
 from unittest.mock import patch, MagicMock
 
+import pytest
+import responses
+
 from decide import Customer, JSONStatement, StatementFormat, PDFStatement, Bank, CSVStatement
+from decide.auth import _fetch_auth_code
+from decide.models.error import DecideException
 
 
 def auth_code_gen(secret=False):
@@ -35,6 +40,34 @@ def test_different_auth_codes():
         auth1 = auth_code_gen(secret=True)
         auth2 = auth_code_gen(secret=True)
         assert auth1 != auth2
+
+
+def test_fetch_auth_code_with_missing_env_vars():
+    os.environ.pop("INDICINA_CLIENT_ID", None)  # ensure the environment variable is not set
+    os.environ.pop("INDICINA_CLIENT_SECRET", None)  # ensure the environment variable is not set
+    with pytest.raises(DecideException) as excinfo:
+        _fetch_auth_code("http://example.com")
+    assert "Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables." in str(excinfo.value)
+    assert excinfo.value.status_code == 400
+
+@responses.activate
+def test_fetch_auth_code_with_invalid_credentials():
+    responses.add(responses.POST, 'http://example.com', json={"error": "invalid_credentials"}, status=401)
+    os.environ["INDICINA_CLIENT_ID"] = "invalid"
+    os.environ["INDICINA_CLIENT_SECRET"] = "invalid"
+    with pytest.raises(DecideException) as excinfo:
+        _fetch_auth_code("http://example.com")
+    assert "HTTP Error: 401 Client Error: Unauthorized" in str(excinfo.value)
+    assert excinfo.value.status_code == 401
+
+@responses.activate
+def test_fetch_auth_code_with_successful_response():
+    responses.add(responses.POST, 'http://example.com', json={"data": {"token": "token123"}}, status=200)
+    os.environ["INDICINA_CLIENT_ID"] = "valid"
+    os.environ["INDICINA_CLIENT_SECRET"] = "valid"
+    token = _fetch_auth_code("http://example.com")
+    assert token == "token123"
+
 
 @patch.object(JSONStatement, 'analyze')
 def test_json_mono_statement(json_statement_mock):

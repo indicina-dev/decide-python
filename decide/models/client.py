@@ -25,7 +25,7 @@ class DecideClient:
 			self.auth.refresh()  # refresh token
 			return requests.request(method, full_path, headers=self.headers, **kwargs)
 		if response.status_code != 200:
-			raise DecideException(response_code=response.status_code, message=response.text)
+			raise DecideException(status_code=response.status_code, message=response.text)
 		return response
 
 	@property
