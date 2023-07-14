@@ -20,13 +20,10 @@ def _fetch_auth_code(url) -> Optional[str]:
     client_secret = os.getenv("INDICINA_CLIENT_SECRET")
 
     if not client_id or not client_secret:
-        logger.error(
-            "Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables."
-        )
-        raise DecideException(
-            message="Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables.",
-            status_code=400,
-        )
+        err_msg = "Both INDICINA_CLIENT_ID and INDICINA_CLIENT_SECRET must be set as environment variables."
+        logger.error(err_msg)
+        raise DecideException(message=err_msg, status_code=400)
+
 
     payload = {"client_id": client_id, "client_secret": client_secret}
 
